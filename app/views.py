@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, session
 from app import app
 from app.model import DatabaseHelper, User
-from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user 
+from flask.ext.login import LoginManager, UserMixin, login_required, login_user, logout_user
 
 db = DatabaseHelper()
 
@@ -70,8 +70,11 @@ def new_goal():
         goal_type = request.form['goal_type']
         print("goal type ", goal_type)
         try:
-            db.create_goal(int(project_id), goal_name, goal_type)
-            return goal_name
+            id = db.create_goal(int(project_id), goal_name, goal_type)
+            project = db.project_for_id(project_id)
+            print("LOOOK AT MEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE!!!!!!!!!!")
+            print(" project ", project)
+            return render_template('project_management.html', page_name=project['name'], project=project, username=db.user.first_name, num_goals=len(project.get('goals', []), last_id=id))
         except Exception as e:
             return render_template("error.html", error = str(e))
 
@@ -120,7 +123,6 @@ def project_management(project_id):
     print(project)
     try:
         return render_template('project_management.html', page_name=project['name'], project=project, username=db.user.first_name, num_goals=len(project['goals']))
-
     except:
         return render_template('project_management.html', page_name=project['name'], project=project, username=db.user.first_name, num_goals=0)
 
@@ -151,7 +153,7 @@ def register():
 def forgot():
     return render_template('forgot_password.html', page_name="Forgot Password?")
 
-# callback to reload the user object        
+# callback to reload the user object
 @login_manager.user_loader
 def load_user(userid):
     try:

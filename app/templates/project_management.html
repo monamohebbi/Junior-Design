@@ -27,13 +27,16 @@
 <!--print(project['goals'][0]['completed']) : False-->
 <script>
 		addOverview('{{project.creation_date}}', '{{num_goals}}');
-		{% for goal in project['goals'] %}
-			if('{{goal["completed"]}}' === 'True') {
-				addCompletedGoals('{{goal["name"]}}', '{{goal["id"]}}', '{{goal["type"]}}')
-			} else {
-				addGoalsInProgress('{{goal["name"]}}', '{{goal["id"]}}', '{{goal["type"]}}')
-			}
-		{% endfor %}
+		function createGoalCards() {
+			{% for goal in project['goals'] %}
+				if('{{goal["completed"]}}' === 'True') {
+					addCompletedGoals('{{goal["name"]}}', '{{goal["id"]}}', '{{goal["type"]}}')
+				} else {
+					addGoalsInProgress('{{goal["name"]}}', '{{goal["id"]}}', '{{goal["type"]}}')
+				}
+			{% endfor %}
+		}
+		createGoalCards();
 		function addOverview(date, num_goals) {
 			document.getElementById("overview").innerHTML += (
 				'<div class="mdl-grid mdl-grid mdl-cell--12-col content-header"> \
@@ -214,8 +217,7 @@
 					{% endfor %}
 				}
 			{% endfor %}
-			innerText = '<ul class="demo-list-control mdl-list">' + innerText + '</ul>';
-			return innerText;
+			return '<ul class="demo-list-control mdl-list">' + innerText + '</ul>';
 		}
 
 		function createListItem(id, time, workCount, workType) {
@@ -253,42 +255,42 @@
 						console.log(goalType);
 	            		if (goal) {
 	            			var currentTime = moment();
-	            			var newGoalHtml =  newGoalFormat.format(
-									goal,
-									currentTime.format('MMMM Do YYYY, h:mm:ss a'),
-									goal,
-									goalType.substring(0, 1),
-									currentTime.calendar());
-	            			var element = document.getElementsByClassName('in-progress-goals')[0]
-							console.log('goal created');
+	            			// var newGoalHtml =  newGoalFormat.format(
+										// 	goal,
+										// 	currentTime.format('MMMM Do YYYY, h:mm:ss a'),
+										// 	goal,
+										// 	goalType.substring(0, 1),
+										// 	currentTime.calendar());
+	            			// var element = document.getElementsByClassName('in-progress-goals')[0]
 							// console.log(document.getElementsByClassName("mdl-layout-title").item(0).innerText)
-	            			$('.in-progress-goals').prepend(newGoalHtml);
+	            			// $('.in-progress-goals').prepend(newGoalHtml);
 	            			//element.insertAdjacentHTML('beforeend', newGoalHtml)
-							console.log(project_id);
+										console.log(project_id);
 
-							$.ajax({
-                        data: {'project': project_id,'goal_name': goal, 'goal_type': goalType},
-                        url: '/new_goal',
-                        type: 'POST',
+										$.ajax({
+                      data: {'project': project_id,'goal_name': goal, 'goal_type': goalType},
+                      url: '/new_goal',
+                      type: 'POST',
 
-                        success: function(response){
-                            console.log();
-                        },
-                        error: function(error){
-                            console.log(error);
-                        }
-                    });
+                      success: function(response){
+                          console.log();
+                      },
+                      error: function(error){
+                          console.log(error);
+                      }
+                  	});
+										createGoalCards();
 	            		} else {
-	            			alert("Invalid goal.");
-	            		}
-	            	}
-	            }
-	        });
+          			alert("Invalid goal.");
+          		}
+          	}
+          }
+      });
 		});
         $(document).on('click', '.add-work-button', function() {
 						var card = $(this).closest('.goal-card');
             var project_id = '{{ project.id }}';
-            var goal = card[0].dataset.name;
+						var goal = card[0].dataset.name;
 			showDialog({
 		        text: addWorkForm,
 		        negative: {
@@ -344,6 +346,7 @@
 				var card = $(this).closest('.goal-card');
 				var goal = card[0].dataset.name;
 				console.log("goal id " + goal);
+				console.log("this is new")
 				showDialog({
 					title: 'Goal Progress History',
 			        text: createWorkHistory(goal),

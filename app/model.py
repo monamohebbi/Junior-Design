@@ -76,11 +76,11 @@ class DatabaseHelper:
         data = {"id": id, "user_id": self.user.id, "project_id": project_id, "name": name, "type": goal_type, "creation_date": time, "completed": False}
         self.db.child("users").child(self.user.id).child("projects").child(project_id).child("goals").child(id) \
             .set(data)
+        # self.user.projects[project_id]['goals'][id] = data
         print("set data in firebase")
-        self.user.projects[project_id]['goals'][id] = data
+        return id
         # self.user.projects.goals.append(data)
         # print("updated goals list: \n ", self.user.projects.project_id.goals)
-
 
     def complete_goal(self, project_id, goal_id):
         self.db.child("users").child(self.user.id).child("projects").child(project_id).child("goals").child(goal_id) \
@@ -102,6 +102,8 @@ class DatabaseHelper:
         else:
             id = len(res)
         print("id ", id)
+        print("goal id ", goal_id)
+        print("project_id ", project_id)
         time = str(datetime.datetime.now())
         data = {"id": id, "user_id": self.user.id, "project_id": project_id, \
                 "goal_id": goal_id, "creation_date": time, "work_count": work_count,
@@ -109,8 +111,6 @@ class DatabaseHelper:
         self.db.child("users").child(self.user.id).child("projects").child(project_id) \
             .child("goals").child(goal_id).child("contributions").child(id) \
             .set(data)
-        self.db.child("users").child(self.user.id).child("projects").child(project_id) \
-            .child("last_updated")
         print("set data in firebase")
 
     def project_for_id(self, id):
