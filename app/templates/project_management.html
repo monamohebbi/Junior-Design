@@ -151,48 +151,7 @@
 				</div>
 			</form>
 		`;
-		var workHistory = `
-			<ul class="demo-list-control mdl-list">
-			  <li class="mdl-list__item">
-			    <span class="mdl-list__item-primary-content">
-			      <i class="material-icons  mdl-list__item-avatar">access_time</i>
-			      <div class="full-width">
-      			      <b>Nov 4 4:14pm</b>
-			      </div>
-			      <div class="full-width">
-			      		230 words
-	      		  </div>
-			    </span>
-				<button id="workHistoryItem1"
-				        class="mdl-button mdl-js-button mdl-button--icon">
-				  <i class="material-icons">more_vert</i>
-				</button>
-				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
-				    for="workHistoryItem1">
-				  <li class="mdl-menu__item mdl-color-text--red">Delete</li>
-				</ul>
-			  </li>
-			  <li class="mdl-list__item">
-			    <span class="mdl-list__item-primary-content">
-			      <i class="material-icons  mdl-list__item-avatar">access_time</i>
-			      <div class="full-width">
-      			      <b>Nov 4 12:21pm</b>
-			      </div>
-			      <div class="full-width">
-			      		220 words
-	      		  </div>
-			    </span>
-				<button id="workHistoryItem2"
-				        class="mdl-button mdl-js-button mdl-button--icon">
-				  <i class="material-icons">more_vert</i>
-				</button>
-				<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect"
-				    for="workHistoryItem2">
-				  <li class="mdl-menu__item mdl-color-text--red">Delete</li>
-				</ul>
-			  </li>
-			</ul>
-		`;
+
 		var completedGoalButton = `
 			<div class="goal-circle">
 				<div class="goal-circle-text">
@@ -245,9 +204,11 @@
 		`;
 
 		function createWorkHistory(goal_id) {
+			console.log(goal_id.toString());
 			var innerText = "";
 			{% for goal in project['goals'] %}
-				if ('{{goal["id"]}}' == goal_id) {
+				console.log("checking " + '{{goal["id"]}}')
+				if ('{{goal["id"]}}' == goal_id.toString()) {
 					{% for contribution in goal['contributions'] %}
 						innerText += createListItem('{{contribution["id"]}}', '{{contribution["creation_date"]}}'.substring(0, 16), '{{contribution["work_count"]}}', '{{contribution["work_type"]}}');
 					{% endfor %}
@@ -259,7 +220,7 @@
 
 		function createListItem(id, time, workCount, workType) {
 				return '\
-					<li class="mdl-list__item"> \
+					<li class="mdl-list__item contribution-item" data-name = ' + id + '> \
 						<span class="mdl-list__item-primary-content"> \
 							<i class="material-icons  mdl-list__item-avatar">access_time</i> \
 							<div class="full-width"> \
@@ -269,14 +230,9 @@
 								' + workCount + ' ' + workType + ' \
 							</div> \
 						</span> \
-						<button id=' + id + '\
-							class="mdl-button mdl-js-button mdl-button--icon"> \
-							<i class="material-icons">more_vert</i> \
-						</button> \
-							<ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" \
-								 for=' + id + '> \
-								 <li class="mdl-menu__item mdl-color-text--red">Delete</li> \
-							</ul>\
+						<button class="mdl-button mdl-js-button mdl-button--icon delete-contribution"> \
+							<i class="material-icons">delete</i> \
+						</button"> \
 					</li>\
 				';
 		}
@@ -311,17 +267,17 @@
 							console.log(project_id);
 
 							$.ajax({
-                                data: {'project': project_id,'goal_name': goal, 'goal_type': goalType},
-                                url: '/new_goal',
-                                type: 'POST',
+                        data: {'project': project_id,'goal_name': goal, 'goal_type': goalType},
+                        url: '/new_goal',
+                        type: 'POST',
 
-                                success: function(response){
-                                    console.log();
-                                },
-                                error: function(error){
-                                    console.log(error);
-                                }
-                            });
+                        success: function(response){
+                            console.log();
+                        },
+                        error: function(error){
+                            console.log(error);
+                        }
+                    });
 	            		} else {
 	            			alert("Invalid goal.");
 	            		}
@@ -330,7 +286,7 @@
 	        });
 		});
         $(document).on('click', '.add-work-button', function() {
-			var card = $(this).closest('.goal-card');
+						var card = $(this).closest('.goal-card');
             var project_id = '{{ project.id }}';
             var goal = card[0].dataset.name;
 			showDialog({
@@ -395,6 +351,12 @@
 		            	title: 'OK',
 		            }
 		        });
+		});
+		$(document).on('click', '.delete-contribution', function() {
+				console.log("hurray");
+				var card = $(this).closest('.contribution-item');
+				var contribution = card[0].dataset.name;
+				console.log()
 		});
 		$(document).on('click', '.complete-goal-button', function() {
 			var card = $(this).closest('.goal-card');
